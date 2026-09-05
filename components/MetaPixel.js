@@ -1,11 +1,11 @@
-// ============================================
-// META PIXEL — Ganti PIXEL_ID di bawah ini
-// ============================================
+// Pixel ID diambil dari environment variable
+// Set di Vercel Dashboard > Settings > Environment Variables
+// Key: NEXT_PUBLIC_PIXEL_ID
 
-export const PIXEL_ID = "YOUR_PIXEL_ID_HERE"; // ← Ganti ini!
+export const PIXEL_ID = process.env.NEXT_PUBLIC_PIXEL_ID || "PIXEL_ID_BELUM_DIISI";
 
-// Inject Pixel script ke <head>
 export function MetaPixelScript() {
+  if (!PIXEL_ID || PIXEL_ID === "PIXEL_ID_BELUM_DIISI") return null;
   return (
     <>
       <script
@@ -25,23 +25,13 @@ export function MetaPixelScript() {
         }}
       />
       <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
-          alt=""
-        />
+        <img height="1" width="1" style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`} alt="" />
       </noscript>
     </>
   );
 }
 
-// ============================================
-// PIXEL EVENT HELPERS — pakai di komponen
-// ============================================
-
-// Dipanggil saat halaman produk dibuka
 export function trackViewContent(product) {
   if (typeof window === "undefined" || !window.fbq) return;
   window.fbq("track", "ViewContent", {
@@ -53,7 +43,6 @@ export function trackViewContent(product) {
   });
 }
 
-// Dipanggil saat klik tombol WA (Chat ke WA)
 export function trackContact(product) {
   if (typeof window === "undefined" || !window.fbq) return;
   window.fbq("track", "Contact", {
@@ -64,7 +53,6 @@ export function trackContact(product) {
   });
 }
 
-// Dipanggil saat klik tombol Order Mandiri
 export function trackInitiateCheckout(product, size, color) {
   if (typeof window === "undefined" || !window.fbq) return;
   window.fbq("track", "InitiateCheckout", {
@@ -75,10 +63,4 @@ export function trackInitiateCheckout(product, size, color) {
     currency: "IDR",
     num_items: 1,
   });
-}
-
-// Dipanggil di halaman katalog
-export function trackSearch(query) {
-  if (typeof window === "undefined" || !window.fbq) return;
-  window.fbq("track", "Search", { search_string: query });
 }
