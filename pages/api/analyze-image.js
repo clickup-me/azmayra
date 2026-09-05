@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         "Authorization": "Bearer " + process.env.GROQ_API_KEY,
       },
       body: JSON.stringify({
-        model: "qwen/qwen3.6-27b",
+        model: "meta-llama/llama-4-maverick-17b-128e-instruct",
         max_tokens: 1000,
         messages: [
           {
