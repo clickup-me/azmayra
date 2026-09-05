@@ -36,6 +36,15 @@ async function uploadToCloudinary(file) {
 }
 
 async function analyzeProductImage(imageUrl, existingName) {
+  const response = await fetch("/api/analyze-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ imageUrl, existingName }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Analisis gagal");
+  return data;
+}
   const prompt = `Kamu adalah copywriter produk fashion Indonesia. Analisis foto produk fashion ini dan berikan informasi dalam format JSON berikut (jawab HANYA JSON, tanpa penjelasan lain):
 
 {
