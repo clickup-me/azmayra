@@ -22,19 +22,25 @@ const emptyProduct = {
   description: "", details: "", wa_message: "", featured: false, badge: "", sort_order: 0,
 };
 
+// ── Upload foto ke Cloudinary ────────────────────────────────
 async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
   formData.append("folder", "azmayra");
+  formData.append("transformation", "q_auto,f_auto,w_1200");
+
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-    method: "POST", body: formData,
+    method: "POST",
+    body: formData,
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || "Upload gagal");
+  // Return URL dengan optimasi otomatis
   return data.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_800/");
 }
 
+// ── Analisis foto dengan Claude AI ──────────────────────────
 async function analyzeProductImage(imageUrl, existingName) {
   const response = await fetch("/api/analyze-image", {
     method: "POST",
@@ -44,18 +50,6 @@ async function analyzeProductImage(imageUrl, existingName) {
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Analisis gagal");
   return data;
-}
-  const prompt = `Kamu adalah copywriter produk fashion Indonesia. Analisis foto produk fashion ini dan berikan informasi dalam format JSON berikut (jawab HANYA JSON, tanpa penjelasan lain):
-
-{
-  "name": "nama produk singkat dan menarik (bahasa Indonesia)",
-  "slug": "nama-produk-tanpa-spasi-pakai-strip",
-  "tagline": "kalimat singkat 1 baris yang menarik (max 60 karakter)",
-  "description": "deskripsi 2-3 kalimat yang menggambarkan produk, bahan, dan keunggulannya",
-  "details": ["detail 1", "detail 2", "detail 3", "detail 4"],
-  "sizes": "S, M, L, XL",
-  "colors": [{"name":"nama warna yang terlihat di foto","hex":"#kode_hex_perkiraan"}],
-  "wa_message": "Halo Azmayra! Saya tertarik dengan *nama produk*. Boleh info ketersediaan stok?"
 }
 
 ${existingName ? `Nama produk yang sudah diisi: "${existingName}". Gunakan nama ini.` : ""}`;
@@ -75,21 +69,21 @@ ${existingName ? `Nama produk yang sudah diisi: "${existingName}". Gunakan nama 
       }]
     })
   });
+
   const data = await response.json();
   const text = data.content?.[0]?.text || "";
   const clean = text.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 }
 
+// ── Form Produk ──────────────────────────────────────────────
 function ProductForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || emptyProduct);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [uploadedUrls, setUploadedUrls] = useState(
-    initial?.images ? initial.images.split("\n").filter(Boolean) : []
-  );
+  const [uploadedUrls, setUploadedUrls] = useState([]);
   const fileRef = useRef();
 
   function handleChange(e) {
@@ -97,6 +91,7 @@ function ProductForm({ initial, onSave, onCancel }) {
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   }
 
+  // Upload foto ke Cloudinary
   async function handleFileUpload(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -105,7 +100,6 @@ function ProductForm({ initial, onSave, onCancel }) {
       return;
     }
     setUploading(true);
-    setError("");
     try {
       const urls = await Promise.all(files.map(uploadToCloudinary));
       setUploadedUrls((prev) => [...prev, ...urls]);
@@ -120,9 +114,13 @@ function ProductForm({ initial, onSave, onCancel }) {
     }
   }
 
+  // Analisis foto dengan AI
   async function handleAnalyze() {
     const firstUrl = form.images?.split("\n").find((u) => u.trim());
-    if (!firstUrl) { alert("Upload foto dulu sebelum analisis."); return; }
+    if (!firstUrl) {
+      alert("Upload foto dulu sebelum analisis.");
+      return;
+    }
     setAnalyzing(true);
     setError("");
     try {
@@ -194,19 +192,19 @@ function ProductForm({ initial, onSave, onCancel }) {
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-      {/* UPLOAD FOTO */}
+      {/* ── UPLOAD FOTO ── */}
       <div style={{ background: "var(--bg-alt)", borderRadius: "var(--radius-md)", padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>📸 Foto Produk</div>
 
+        {/* Preview foto */}
         {uploadedUrls.length > 0 && (
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
             {uploadedUrls.map((url, i) => (
               <div key={i} style={{ position: "relative" }}>
                 <img src={url} alt={`Foto ${i+1}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "2px solid var(--accent)" }} />
                 <button type="button" onClick={() => {
-                  const newUrls = uploadedUrls.filter((_, idx) => idx !== i);
-                  setUploadedUrls(newUrls);
-                  setForm((prev) => ({ ...prev, images: newUrls.join("\n") }));
+                  setUploadedUrls((prev) => prev.filter((_, idx) => idx !== i));
+                  setForm((prev) => ({ ...prev, images: prev.images.split("\n").filter((u) => u !== url).join("\n") }));
                 }} style={{ position: "absolute", top: -6, right: -6, width: 20, height: 20, borderRadius: "50%", background: "#E24B4A", color: "#fff", border: "none", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
               </div>
             ))}
@@ -214,39 +212,48 @@ function ProductForm({ initial, onSave, onCancel }) {
         )}
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {/* Tombol upload */}
           <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleFileUpload} style={{ display: "none" }} />
           <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} style={{
             padding: "10px 20px", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-            background: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer",
+            background: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
           }}>
             {uploading ? "⏳ Mengupload..." : "📁 Upload Foto"}
           </button>
 
+          {/* Tombol AI Analisis */}
           <button type="button" onClick={handleAnalyze} disabled={analyzing || !form.images} style={{
             padding: "10px 20px", border: "none", borderRadius: "var(--radius-sm)",
-            background: analyzing || !form.images ? "#ccc" : "var(--accent)",
-            color: "#fff", fontSize: 13, fontWeight: 600,
-            cursor: analyzing || !form.images ? "not-allowed" : "pointer",
+            background: analyzing ? "#ccc" : "var(--accent)", color: "#fff",
+            fontSize: 13, fontWeight: 600, cursor: analyzing ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", gap: 8,
           }}>
-            {analyzing ? "⏳ Menganalisis..." : "✨ Auto-isi dari Foto (AI)"}
+            {analyzing ? "⏳ Menganalisis foto..." : "✨ Auto-isi dari Foto (AI)"}
           </button>
         </div>
 
+        {form.images && (
+          <div style={{ marginTop: 10, fontSize: 12, color: "var(--ink-light)" }}>
+            {form.images.split("\n").filter(Boolean).length} foto terpilih
+          </div>
+        )}
+
+        {/* Manual URL input */}
         <div style={{ marginTop: 12 }}>
-          <label style={{ ...labelStyle, marginBottom: 4 }}>Atau paste URL foto (satu per baris)</label>
+          <label style={{ ...labelStyle, marginBottom: 4 }}>Atau paste URL foto manual (satu per baris)</label>
           <textarea style={{ ...inputStyle, resize: "vertical", fontSize: 12, fontFamily: "monospace" }}
             name="images" value={form.images} onChange={handleChange} rows={2}
-            placeholder="https://res.cloudinary.com/..." />
+            placeholder="/images/nama-produk.jpg" />
         </div>
       </div>
 
-      {/* DETAIL PRODUK */}
+      {/* ── DETAIL PRODUK ── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div><label style={labelStyle}>Nama Produk *</label><input style={inputStyle} name="name" value={form.name} onChange={handleChange} required /></div>
         <div><label style={labelStyle}>Slug (URL) *</label><input style={inputStyle} name="slug" value={form.slug} onChange={handleChange} placeholder="nama-produk" required /></div>
       </div>
 
-      <div><label style={labelStyle}>Tagline</label><input style={inputStyle} name="tagline" value={form.tagline} onChange={handleChange} /></div>
+      <div><label style={labelStyle}>Tagline</label><input style={inputStyle} name="tagline" value={form.tagline} onChange={handleChange} placeholder="Kalimat singkat yang menarik" /></div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div><label style={labelStyle}>Harga (Rp) *</label><input style={inputStyle} name="price" type="number" value={form.price} onChange={handleChange} required /></div>
@@ -266,7 +273,8 @@ function ProductForm({ initial, onSave, onCancel }) {
 
       <div>
         <label style={labelStyle}>Detail Produk (satu per baris)</label>
-        <textarea style={{ ...inputStyle, resize: "vertical" }} name="details" value={form.details} onChange={handleChange} rows={4} placeholder={"Bahan: Linen premium\nUkuran S sampai XL"} />
+        <textarea style={{ ...inputStyle, resize: "vertical" }} name="details" value={form.details} onChange={handleChange} rows={4}
+          placeholder={"Bahan: Linen premium\nUkuran S sampai XL"} />
       </div>
 
       <div><label style={labelStyle}>Pesan WA Otomatis</label><textarea style={{ ...inputStyle, resize: "vertical" }} name="wa_message" value={form.wa_message} onChange={handleChange} rows={2} /></div>
@@ -274,17 +282,13 @@ function ProductForm({ initial, onSave, onCancel }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, alignItems: "end" }}>
         <div><label style={labelStyle}>Badge</label><input style={inputStyle} name="badge" value={form.badge} onChange={handleChange} placeholder="Bestseller / Baru / Limited" /></div>
         <div><label style={labelStyle}>Urutan</label><input style={inputStyle} name="sort_order" type="number" value={form.sort_order} onChange={handleChange} /></div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 2 }}>
           <input type="checkbox" name="featured" id="featured" checked={form.featured} onChange={handleChange} style={{ width: 18, height: 18 }} />
           <label htmlFor="featured" style={{ fontSize: 14, cursor: "pointer" }}>Pilihan Utama</label>
         </div>
       </div>
 
-      {error && (
-        <p style={{ fontSize: 13, color: "#E24B4A", margin: 0, background: "#FFF0F0", padding: "10px 14px", borderRadius: "var(--radius-sm)" }}>
-          {error}
-        </p>
-      )}
+      {error && <p style={{ fontSize: 13, color: "#E24B4A", margin: 0, background: "#FFF0F0", padding: "10px 14px", borderRadius: "var(--radius-sm)" }}>{error}</p>}
 
       <div style={{ display: "flex", gap: 12 }}>
         <button type="submit" disabled={saving} style={{
@@ -302,6 +306,7 @@ function ProductForm({ initial, onSave, onCancel }) {
   );
 }
 
+// ── Halaman utama admin produk ───────────────────────────────
 export default function AdminProduk() {
   useAdminGuard();
   const [products, setProducts] = useState([]);
@@ -371,6 +376,7 @@ export default function AdminProduk() {
                   border: "none", borderRadius: "var(--radius-md)", fontSize: 14, fontWeight: 600, cursor: "pointer",
                 }}>+ Tambah Produk</button>
               </div>
+
               {loading ? <p style={{ color: "var(--ink-light)" }}>Memuat...</p> : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {products.map((p) => (
