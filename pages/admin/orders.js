@@ -66,3 +66,51 @@ export default function AdminOrders() {
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                     <div style={{ fontWeight: 600, fontSize: 15 }}>{o.customer_name}</div>
                     <div style={{ fontSize: 12, color: "var(--ink-light)" }}>
+                      {new Date(o.created_at).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, fontSize: 13 }}>
+                    <div>
+                      <span style={{ color: "var(--ink-light)" }}>Produk</span>
+                      <br /><strong>{o.product_name}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "var(--ink-light)" }}>Ukuran & Warna</span>
+                      <br /><strong>{o.size} · {o.color}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: "var(--ink-light)" }}>No. WA</span>
+                      <br /><strong>{o.customer_phone}</strong>
+                    </div>
+                    {o.address && (
+                      <div style={{ gridColumn: "1 / -1" }}>
+                        <span style={{ color: "var(--ink-light)" }}>Alamat</span>
+                        <br />{o.address}
+                      </div>
+                    )}
+                    {o.notes && (
+                      <div style={{ gridColumn: "1 / -1" }}>
+                        <span style={{ color: "var(--ink-light)" }}>Catatan</span>
+                        <br />{o.notes}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "var(--ink-light)" }}>
+                      Ditangani: {o.cs_name || "–"}
+                    </span>
+                    <a href={`https://wa.me/${o.customer_phone?.replace(/\D/g, "")}`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 13, color: "var(--wa-green)", fontWeight: 600 }}>
+                      Balas WA →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
