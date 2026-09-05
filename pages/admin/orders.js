@@ -20,10 +20,7 @@ export default function AdminOrders() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       setOrders(data || []);
       setLoading(false);
     }
@@ -41,7 +38,7 @@ export default function AdminOrders() {
           <div style={{ fontFamily: "var(--font-display)", fontSize: 20 }}>Azmayra Admin</div>
           <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
             <Link href="/admin/produk" style={{ color: "#fff", opacity: 0.6 }}>Produk</Link>
-            <Link href="/admin/orders" style={{ color: "#fff", fontWeight: 600 }}>Orders</Link>
+            <Link href="/admin/orders" style={{ color: "#fff", opacity: 1, fontWeight: 600 }}>Orders</Link>
             <Link href="/admin/cs" style={{ color: "#fff", opacity: 0.6 }}>CS</Link>
             <Link href="/" style={{ color: "#fff", opacity: 0.6 }}>← Katalog</Link>
           </div>
@@ -70,37 +67,15 @@ export default function AdminOrders() {
                     </div>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, fontSize: 13 }}>
-                    <div>
-                      <span style={{ color: "var(--ink-light)" }}>Produk</span>
-                      <br /><strong>{o.product_name}</strong>
-                    </div>
-                    <div>
-                      <span style={{ color: "var(--ink-light)" }}>Ukuran & Warna</span>
-                      <br /><strong>{o.size} · {o.color}</strong>
-                    </div>
-                    <div>
-                      <span style={{ color: "var(--ink-light)" }}>No. WA</span>
-                      <br /><strong>{o.customer_phone}</strong>
-                    </div>
-                    {o.address && (
-                      <div style={{ gridColumn: "1 / -1" }}>
-                        <span style={{ color: "var(--ink-light)" }}>Alamat</span>
-                        <br />{o.address}
-                      </div>
-                    )}
-                    {o.notes && (
-                      <div style={{ gridColumn: "1 / -1" }}>
-                        <span style={{ color: "var(--ink-light)" }}>Catatan</span>
-                        <br />{o.notes}
-                      </div>
-                    )}
+                    <div><span style={{ color: "var(--ink-light)" }}>Produk</span><br /><strong>{o.product_name}</strong></div>
+                    <div><span style={{ color: "var(--ink-light)" }}>Ukuran & Warna</span><br /><strong>{o.size} · {o.color}</strong></div>
+                    <div><span style={{ color: "var(--ink-light)" }}>No. WA</span><br /><strong>{o.customer_phone}</strong></div>
+                    {o.address && <div style={{ gridColumn: "1 / -1" }}><span style={{ color: "var(--ink-light)" }}>Alamat</span><br />{o.address}</div>}
+                    {o.notes && <div style={{ gridColumn: "1 / -1" }}><span style={{ color: "var(--ink-light)" }}>Catatan</span><br />{o.notes}</div>}
                   </div>
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "var(--ink-light)" }}>
-                      Ditangani: {o.cs_name || "–"}
-                    </span>
-                    <a href={`https://wa.me/${o.customer_phone?.replace(/\D/g, "")}`}
-                      target="_blank" rel="noopener noreferrer"
+                    <span style={{ fontSize: 12, color: "var(--ink-light)" }}>Ditangani: {o.cs_name || "–"}</span>
+                    <a href={`https://wa.me/${o.customer_phone?.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
                       style={{ fontSize: 13, color: "var(--wa-green)", fontWeight: 600 }}>
                       Balas WA →
                     </a>
