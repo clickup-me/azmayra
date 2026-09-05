@@ -63,7 +63,11 @@ export default async function handler(req, res) {
       ? data.choices[0].message.content
       : "";
 
-    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const clean = text
+  .replace(/<think>[\s\S]*?<\/think>/g, "")
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
     const result = JSON.parse(clean);
     return res.status(200).json(result);
 
