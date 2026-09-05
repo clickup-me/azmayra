@@ -1,53 +1,73 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-  const { imageUrl, existingName } = req.body;
-  if (!imageUrl) return res.status(400).json({ error: "imageUrl required" });
+  const imageUrl = req.body.imageUrl;
+  const existingName = req.body.existingName || "";
 
-  const prompt = `Kamu adalah copywriter produk fashion Indonesia. Analisis foto produk fashion ini dan berikan informasi dalam format JSON berikut (jawab HANYA JSON, tanpa penjelasan lain):
+  if (!imageUrl) {
+    return res.status(400).json({ error: "imageUrl required" });
+  }
 
-{
-  "name": "nama produk singkat dan menarik (bahasa Indonesia)",
-  "slug": "nama-produk-tanpa-spasi-pakai-strip",
-  "tagline": "kalimat singkat 1 baris yang menarik (max 60 karakter)",
-  "description": "deskripsi 2-3 kalimat yang menggambarkan produk, bahan, dan keunggulannya",
-  "details": ["detail 1", "detail 2", "detail 3", "detail 4"],
-  "sizes": "S, M, L, XL",
-  "colors": [{"name":"nama warna yang terlihat di foto","hex":"#kode_hex_perkiraan"}],
-  "wa_message": "Halo Azmayra! Saya tertarik dengan *nama produk*. Boleh info ketersediaan stok?"
-}
+  const nameHint = existingName
+    ? "Nama produk yang sudah diisi: " + existingName + ". Gunakan nama ini."
+    : "";
 
-${existingName ? `Nama produk yang sudah diisi: "${existingName}". Gunakan nama ini.` : ""}`;
+  const prompt = "Kamu adalah copywriter produk fashion Indonesia. " +
+    "Lihat foto produk dari URL ini: " + imageUrl + ". " +
+    "Berikan informasi dalam format JSON berikut (jawab HANYA JSON): " +
+    '{"name":"nama produk","slug":"nama-produk","tagline":"tagline max 60 karakter",' +
+    '"description":"deskripsi 2-3 kalimat",' +
+    '"details":["detail 1","detail 2","detail 3"],' +
+    '"sizes":"S, M, L, XL",' +
+    '"colors":[{"name":"nama warna","hex":"#hexcode"}],' +
+    '"wa_message":"Halo Azmayra! Saya tertarik dengan *nama produk*. Boleh info stok?"}' +
+    " " + nameHint;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": "Bearer " + process.env.GROQ_API_KEY,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         max_tokens: 1000,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image", source: { type: "url", url: imageUrl } },
-            { type: "text", text: prompt }
-          ]
-        }]
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url",
+                image_url: { url: imageUrl }
+              },
+              {
+                type: "text",
+                text: prompt
+              }
+            ]
+          }
+        ]
       })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "API error");
 
-    const text = data.content?.[0]?.text || "";
-    const clean = text.replace(/```json|```/g, "").trim();
+    if (!response.ok) {
+      throw new Error(data.error ? data.error.message : "Groq API error");
+    }
+
+    const text = data.choices && data.choices[0]
+      ? data.choices[0].message.content
+      : "";
+
+    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
     const result = JSON.parse(clean);
-    res.status(200).json(result);
+    return res.status(200).json(result);
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
