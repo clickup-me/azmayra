@@ -234,4 +234,21 @@ export default function AdminProduk() {
           {mode === "add" && (
             <>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 400, marginBottom: 24 }}>Tambah Produk</h1>
-              <div style={{ background:
+              <div style={{ background: "#fff", borderRadius: "var(--radius-lg)", padding: 28, boxShadow: "var(--shadow-card)" }}>
+                <ProductForm onSave={handleSaved} onCancel={() => setMode("list")} />
+              </div>
+            </>
+          )}
+          {mode === "edit" && editing && (
+            <>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 400, marginBottom: 24 }}>Edit — {editing.name}</h1>
+              <div style={{ background: "#fff", borderRadius: "var(--radius-lg)", padding: 28, boxShadow: "var(--shadow-card)" }}>
+                <ProductForm initial={editing} onSave={handleSaved} onCancel={() => { setMode("list"); setEditing(null); }} />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
