@@ -59,7 +59,8 @@ export default function ProductPage({ product }) {
           {product.images?.length > 1 && (
             <div className="product-thumbs">
               {product.images.map((img, i) => (
-                <button key={i} className={`product-thumb ${activeImage === i ? "active" : ""}`} onClick={() => setActiveImage(i)}>
+                <button key={i} className={`product-thumb ${activeImage === i ? "active" : ""}`}
+                  onClick={() => setActiveImage(i)}>
                   <img src={img} alt={`${product.name} ${i + 1}`} />
                 </button>
               ))}
@@ -85,8 +86,11 @@ export default function ProductPage({ product }) {
             <p className="selector-label">Ukuran {selectedSize && `— ${selectedSize}`}</p>
             <div className="size-options">
               {product.sizes?.map((size) => (
-                <button key={size} className={`size-btn ${selectedSize === size ? "selected" : ""}`}
-                  onClick={() => setSelectedSize(selectedSize === size ? null : size)}>{size}</button>
+                <button key={size}
+                  className={`size-btn ${selectedSize === size ? "selected" : ""}`}
+                  onClick={() => setSelectedSize(selectedSize === size ? null : size)}>
+                  {size}
+                </button>
               ))}
             </div>
           </div>
@@ -94,9 +98,11 @@ export default function ProductPage({ product }) {
             <p className="selector-label">Warna {selectedColor && `— ${selectedColor.name}`}</p>
             <div className="color-options">
               {product.colors?.map((color) => (
-                <button key={color.name} className={`color-btn ${selectedColor?.name === color.name ? "selected" : ""}`}
+                <button key={color.name}
+                  className={`color-btn ${selectedColor?.name === color.name ? "selected" : ""}`}
                   onClick={() => setSelectedColor(selectedColor?.name === color.name ? null : color)}>
-                  <span className="color-swatch" style={{ background: color.hex }} />{color.name}
+                  <span className="color-swatch" style={{ background: color.hex }} />
+                  {color.name}
                 </button>
               ))}
             </div>
@@ -106,7 +112,9 @@ export default function ProductPage({ product }) {
             <CTAWAButton message={waMsg} onTrack={() => trackContact(product)} />
             <button className="cta-order" onClick={handleOrderClick}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 01-8 0"/>
               </svg>
               Pesan Sendiri — Pilih Size & Warna
             </button>
@@ -114,7 +122,9 @@ export default function ProductPage({ product }) {
           </div>
           <div className="product-details">
             <h3>Detail Produk</h3>
-            <p style={{ fontSize: 14, color: "var(--ink-light)", marginBottom: 14, lineHeight: 1.6 }}>{product.description}</p>
+            <p style={{ fontSize: 14, color: "var(--ink-light)", marginBottom: 14, lineHeight: 1.6 }}>
+              {product.description}
+            </p>
             <ul>{product.details?.map((d, i) => <li key={i}>{d}</li>)}</ul>
           </div>
         </div>
