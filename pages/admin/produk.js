@@ -70,7 +70,10 @@ function ProductForm({ initial, onSave, onCancel }) {
     borderRadius: "var(--radius-sm)", fontSize: 14, fontFamily: "var(--font-body)",
     color: "var(--ink)", background: "var(--surface)", outline: "none", boxSizing: "border-box",
   };
-  const labelStyle = { fontSize: 12, fontWeight: 600, color: "var(--ink-light)", display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.04em" };
+  const labelStyle = {
+    fontSize: 12, fontWeight: 600, color: "var(--ink-light)", display: "block",
+    marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.04em",
+  };
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -132,7 +135,7 @@ export default function AdminProduk() {
   useAdminGuard();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState("list"); // list | add | edit
+  const [mode, setMode] = useState("list");
   const [editing, setEditing] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -177,17 +180,15 @@ export default function AdminProduk() {
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <div style={{ minHeight: "100vh", background: "var(--bg)", fontFamily: "var(--font-body)" }}>
-        {/* Header */}
         <div style={{ background: "var(--ink)", color: "#fff", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 20 }}>Azmayra Admin</div>
           <div style={{ display: "flex", gap: 16, fontSize: 13 }}>
-            <Link href="/admin/produk" style={{ color: "#fff", opacity: 1, fontWeight: 600 }}>Produk</Link>
+            <Link href="/admin/produk" style={{ color: "#fff", fontWeight: 600 }}>Produk</Link>
             <Link href="/admin/orders" style={{ color: "#fff", opacity: 0.6 }}>Orders</Link>
             <Link href="/admin/cs" style={{ color: "#fff", opacity: 0.6 }}>CS</Link>
             <Link href="/" style={{ color: "#fff", opacity: 0.6 }}>← Katalog</Link>
           </div>
         </div>
-
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
           {mode === "list" && (
             <>
@@ -196,13 +197,9 @@ export default function AdminProduk() {
                 <button onClick={() => setMode("add")} style={{
                   padding: "10px 20px", background: "var(--ink)", color: "#fff",
                   border: "none", borderRadius: "var(--radius-md)", fontSize: 14, fontWeight: 600, cursor: "pointer",
-                }}>
-                  + Tambah Produk
-                </button>
+                }}>+ Tambah Produk</button>
               </div>
-              {loading ? (
-                <p style={{ color: "var(--ink-light)" }}>Memuat...</p>
-              ) : (
+              {loading ? <p style={{ color: "var(--ink-light)" }}>Memuat...</p> : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {products.map((p) => (
                     <div key={p.id} style={{
@@ -216,30 +213,16 @@ export default function AdminProduk() {
                         <div style={{ fontWeight: 600, fontSize: 15 }}>{p.name}</div>
                         <div style={{ fontSize: 13, color: "var(--ink-light)" }}>{formatPrice(p.price)} · /produk/{p.slug}</div>
                       </div>
-                      {p.badge && (
-                        <span style={{ fontSize: 11, fontWeight: 600, background: "var(--ink)", color: "#fff", padding: "3px 10px", borderRadius: 100 }}>{p.badge}</span>
-                      )}
+                      {p.badge && <span style={{ fontSize: 11, fontWeight: 600, background: "var(--ink)", color: "#fff", padding: "3px 10px", borderRadius: 100 }}>{p.badge}</span>}
                       <div style={{ display: "flex", gap: 8 }}>
-                        <button onClick={() => handleEdit(p)} style={{
-                          padding: "8px 16px", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-                          fontSize: 13, cursor: "pointer", background: "transparent",
-                        }}>Edit</button>
+                        <button onClick={() => handleEdit(p)} style={{ padding: "8px 16px", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer", background: "transparent" }}>Edit</button>
                         {deleteId === p.id ? (
                           <>
-                            <button onClick={() => handleDelete(p.id)} style={{
-                              padding: "8px 16px", background: "#E24B4A", color: "#fff",
-                              border: "none", borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer",
-                            }}>Yakin hapus?</button>
-                            <button onClick={() => setDeleteId(null)} style={{
-                              padding: "8px 16px", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-                              fontSize: 13, cursor: "pointer", background: "transparent",
-                            }}>Batal</button>
+                            <button onClick={() => handleDelete(p.id)} style={{ padding: "8px 16px", background: "#E24B4A", color: "#fff", border: "none", borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer" }}>Yakin hapus?</button>
+                            <button onClick={() => setDeleteId(null)} style={{ padding: "8px 16px", border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer", background: "transparent" }}>Batal</button>
                           </>
                         ) : (
-                          <button onClick={() => setDeleteId(p.id)} style={{
-                            padding: "8px 16px", border: "1.5px solid #E24B4A", color: "#E24B4A",
-                            borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer", background: "transparent",
-                          }}>Hapus</button>
+                          <button onClick={() => setDeleteId(p.id)} style={{ padding: "8px 16px", border: "1.5px solid #E24B4A", color: "#E24B4A", borderRadius: "var(--radius-sm)", fontSize: 13, cursor: "pointer", background: "transparent" }}>Hapus</button>
                         )}
                       </div>
                     </div>
@@ -248,26 +231,7 @@ export default function AdminProduk() {
               )}
             </>
           )}
-
           {mode === "add" && (
             <>
               <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 400, marginBottom: 24 }}>Tambah Produk</h1>
-              <div style={{ background: "#fff", borderRadius: "var(--radius-lg)", padding: 28, boxShadow: "var(--shadow-card)" }}>
-                <ProductForm onSave={handleSaved} onCancel={() => setMode("list")} />
-              </div>
-            </>
-          )}
-
-          {mode === "edit" && editing && (
-            <>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 400, marginBottom: 24 }}>Edit — {editing.name}</h1>
-              <div style={{ background: "#fff", borderRadius: "var(--radius-lg)", padding: 28, boxShadow: "var(--shadow-card)" }}>
-                <ProductForm initial={editing} onSave={handleSaved} onCancel={() => { setMode("list"); setEditing(null); }} />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
+              <div style={{ background:
