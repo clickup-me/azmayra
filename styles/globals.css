@@ -620,23 +620,51 @@ button {
 }
 
 /* ============================================
-   RESPONSIVE
+   RESPONSIVE — TABLET (max 768px)
    ============================================ */
 @media (max-width: 768px) {
+  /* Navbar */
+  .navbar-inner {
+    padding: 0 16px;
+  }
+
+  .navbar-logo {
+    font-size: 20px;
+  }
+
+  /* Katalog */
   .catalog-hero {
-    padding: 40px 20px 32px;
+    padding: 32px 16px 24px;
+  }
+
+  .catalog-hero h1 {
+    font-size: 40px;
   }
 
   .catalog-grid {
-    padding: 0 20px 60px;
+    padding: 0 16px 60px;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
 
+  /* Product card mobile */
+  .product-card-name {
+    font-size: 16px;
+  }
+
+  .product-card-body {
+    padding: 14px;
+  }
+
+  .price-current {
+    font-size: 15px;
+  }
+
+  /* Product page */
   .product-page {
     grid-template-columns: 1fr;
-    padding: 32px 20px 60px;
-    gap: 32px;
+    padding: 24px 16px 60px;
+    gap: 24px;
   }
 
   .product-gallery {
@@ -644,14 +672,114 @@ button {
   }
 
   .product-name {
-    font-size: 28px;
+    font-size: 26px;
+  }
+
+  .product-price {
+    font-size: 22px;
+  }
+
+  /* CTA buttons full width mobile */
+  .cta-wa,
+  .cta-order {
+    padding: 15px;
+    font-size: 14px;
+  }
+
+  /* Order page */
+  .order-page {
+    padding: 24px 16px 60px;
   }
 }
 
+/* ============================================
+   RESPONSIVE — MOBILE (max 480px)
+   ============================================ */
 @media (max-width: 480px) {
+  /* Katalog 1 kolom di HP kecil */
   .catalog-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
+    padding: 0 16px 60px;
+  }
+
+  .catalog-hero h1 {
+    font-size: 36px;
+  }
+
+  /* Navbar compact */
+  .navbar-wa span {
+    display: none; /* sembunyikan teks nama CS, tampilkan hanya icon */
+  }
+
+  /* Product page */
+  .product-main-image {
+    border-radius: var(--radius-md);
+  }
+
+  .product-thumbs {
+    gap: 8px;
+  }
+
+  .product-thumb {
+    width: 60px;
+  }
+
+  .product-name {
+    font-size: 24px;
+  }
+
+  .product-price {
+    font-size: 20px;
+  }
+
+  /* Size & color selector lebih besar di mobile (mudah di-tap) */
+  .size-btn {
+    min-width: 52px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .color-btn {
+    padding: 8px 16px 8px 10px;
+    font-size: 14px;
+  }
+
+  .color-swatch {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* CTA sticky di mobile */
+  .cta-group {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg);
+    padding: 16px 0 8px;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    box-shadow: 0 -8px 24px rgba(26,26,26,0.08);
+    z-index: 10;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .cta-note {
+    display: none;
+  }
+
+  /* Form order */
+  .order-page h1 {
+    font-size: 24px;
+  }
+
+  .form-input {
+    font-size: 16px; /* hindari zoom otomatis di iOS */
+  }
+
+  /* Footer */
+  .footer {
+    padding: 28px 16px;
   }
 }
 
